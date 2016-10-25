@@ -1,41 +1,58 @@
-import { div } from './node.js';
+import node from './node.js';
 import event from './event.js';
+import { 
+    hash,
+    isComponent, 
+    randomStr 
+} from './utils.js';
+let { div } = node;
 
 export default class Component {
     constructor () {
-        this.$el = null;
-        this.$container = null;
-        this.isReady = false;                   //是否已挂载成功
-    }
+        this.$id = randomStr();
+        this.$wrapId = null;
 
-    // set isReady (bool) {
-    //     this.isReady = bool;
-    // }
+        //渲染相关数据
+        this.state = hash();
+    }
 
     get innerHTML () {
         return this.render();
     }
 
     renderDOM (containerEl) {
-        if (!containerEl) throw Error('containerEl is must for renderDOM method!');
-        let _html = this.render();
-        if (_html) {
-            containerEl.insertAdjacentHTML('beforeend' ,_html);
-        }
-        this.isReady = true;
+        
     }
 
     render () {
         return div();
     }
 
-    ready () {
-
-    }
     /**
-     * 事件相关
+     * 插入子组件
      */
-    on () {
+    insert (component, ...rest) {
+        let _id = randomStr(),
+            tmpComponent = new component(rest);
 
+        tmpComponent.$wrapId = _id;
+
+        return div(tmpComponent.innerHTML, {id: _id});
+    }
+
+    getState () {
+        return this.state;
+    }
+
+    setState (obj=hash()) {
+        this.state = { 
+            ...this.state,
+            ...obj 
+        }
+
+        /**
+         * 更新当前组件
+         */
+        document.getElementById(this.$wrapId).innerHTML = this.innerHTML;
     }
 }

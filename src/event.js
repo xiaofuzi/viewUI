@@ -1,102 +1,99 @@
-export default function($el) {
-    let event = {
-        element: $el,
-        eventHandler: {
-            events: {},
-            bindEvent (event, callback, targetElement) {
-                //bind event listener to DOM element
-                //在冒泡阶段触发
-                targetElement.addEventListener(event, callback, false);
+var slice = [].slice;
 
-                if (this.events[event]) {
-                    var counter = this.events[event].length;
-                    this.events[event].push({
-                        eventId: counter,
-                        event: callback,
-                        target: targetElement
-                    })
-                } else {
-                    this.events[event] = [];
-                    this.events[event].push({
-                        eventId: 0,
-                        event: callback,
-                        target: targetElement
-                    })
-                }
+/*
+* event control class
+* @param {context}
+*/
 
-            },
-            findEvent (event) {
-                if (this.events[event]) {
-                    return this.events[event][0];
-                } else {
-                    return false;
-                }
-            },
-            /*
-             * return all listen events
-             */
-            all (event) {
-                if (this.events[event]) {
-                    return this.events[event];
-                } else {
-                    return false;
-                }
-            },
-            unbindEvent (event, targetElement) {
-                var foundEvent = this.findEvent(event);
-                if (foundEvent) {
-                    targetElement.removeEventListener(event, foundEvent.event, false);
+export default function Event(ctx){
+    this._ctx = ctx || this;
+    this._events = {};
+}
 
-                    //update events array
-                    this.events = this.events[event].filter(function(e) {
-                        return e.counter !== event.counter;
-                    }, event);
-                }
-            },
-            remove (event, targetElement) {
-                var self = this;
-                var events = this.all(event);
-                if (events) {
-                    events.forEach(function(e) {
-                        self.unbindEvent(e, targetElement)
-                    })
-                    self.events[event] = [];
-                }
-            },
-            /*
-             * 检查该事件类型是否被绑定
-             */
-            isBinding (event) {
-                if (this.findEvent(event)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        },
-        on (event, callback) {
-            this.eventHandler.bindEvent(event, callback, this.element);
-        },
-        /*
-         * bind once
-         */
-        once (event, callback) {
-            this.eventHandler.remove(event);
-            this.on(event, callback);
-        },
-        off (event) {
-            this.eventHandler.unbindEvent(event, this.element);
-        },
-        clear (event) {
-            this.eventHandler.remove(event, this.element);
-        },
-        //浏览器事件，默认冒泡
-        trigger (type) {
-            var el = this.element;
-            var event = document.createEvent('HTMLEvents');
-            event.initEvent(type, true, true);
-            el.dispatchEvent(event);
+var EventProto = Event.prototype;
+
+/*
+* bind a event
+* @param {event} eventType
+* @param {fn} function
+*/
+EventProto.on = function(event, fn){
+    this._events[event] = this._events[event] || [];
+    this._events[event].push(fn);
+
+    return this;
+}
+
+/*
+* bind an event but only called one time
+* @param {event} eventType
+* @param {fn} function
+*/
+EventProto.once = function(event, fn){
+    var self = this;
+
+    //when fn is called, remove all event listener
+    function fnWrap(){
+        self.off(event, fnWrap);
+        fn.apply(this, arguments);
+    }
+
+    //to specifiy remove method
+    fnWrap.fn = fn;
+    this.on(event, fnWrap);
+    return this;
+}
+
+
+/*
+* unbind an event  
+* @param {event} eventType
+* @param {fn} function
+*/
+
+EventProto.off = function(event, fn){
+    //remove all events
+    if(!arguments){
+        this._events = {};
+        return this;
+    }
+
+    //there are not fn binded
+    var events = this._events[event];
+    if(!events) return this;
+
+    //remove an type events
+    if(arguments.length === 1 && typeof event === 'string'){
+        delete this._events[event];
+        return this;
+    }
+
+    //remove fn
+    var handler;
+    for(var i = 0; i < events.length; i++){
+        handler = events[i];
+        if(handler === fn || handler.fn === fn){
+            events.splice(i, 1);
+            break;
         }
     }
-    return event
+    return this;
+}
+
+/*
+* emit
+* @param {event}
+* @param {fn param}
+*/
+EventProto.emit = function(event){
+    var events = this._events[event],
+        args;
+    if(events){
+        events = events.slice(0);
+        args = slice.call(arguments, 1);
+        events.forEach(function(event){
+            event.apply(this._ctx, args);
+        })
+    }
+    return this;
 }

@@ -100,7 +100,7 @@ const dom = {
         if(value){
             this.element.setAttribute(prop, value);
         }else if(prop){
-            this.element.getAttribute(prop);
+            return this.element.getAttribute(prop);
         }
         return this;
     },

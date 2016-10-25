@@ -1,0 +1,52 @@
+.widget-card-component {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 350px;
+
+    .card-header {
+        position: relative;
+        border-bottom: 1px solid #ddd;
+
+        .card-title {
+            height: 40px;
+            line-height: 40px;
+            padding: 0 15px;
+            h3{
+                display: inline-block;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+        }
+
+        .card-extral-icon {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            a {
+                color: #2db7f5;
+                &:hover {
+                    color: #57c5f7;
+                }
+            }
+        }
+    }
+
+    .card-body {
+        transition: height 2s;
+        overflow: hidden;
+        
+        li {
+            list-style: none;
+            padding: 5px 15px;
+        }
+    }
+
+    .show {
+        height: auto;
+    }
+
+    .hide {
+        height: 0;
+    }
+}

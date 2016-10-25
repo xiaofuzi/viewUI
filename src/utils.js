@@ -40,7 +40,6 @@ export function isClass (obj, className) {
         return false;
     }
 
-    console.log('obj', obj);
     if (obj instanceof className) {
         return true;
     } else {
@@ -56,6 +55,12 @@ export function isComponent (obj) {
     return isClass(obj, Component);
 }
 
+/**
+ * 随机字符串
+ */
+export function randomStr () {
+    return Math.random() + String(Number(new Date()));
+}
 
 /**
  * 生成空对象

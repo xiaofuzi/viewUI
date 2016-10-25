@@ -2,32 +2,68 @@
  * @file node.js
  * 节点操作
  */
-
+import dom from './dom/dom.js';
+import browserEvent from './browserEvent.js';
 import { hash, each,
     isObject,
-    isComponent
+    isComponent,
+    randomStr
 } from './utils.js';
+
+/**
+ * @private
+ * event helper method
+ */
+function _eventHelper (id, eventType, cb) {
+    console.log(document.getElementById(id))
+    if (!document.getElementById(id)) {
+        /**
+         * 首次渲染事件绑定
+         */
+        document.body.onload = function (e) {
+            browserEvent(document.getElementById(id)).on(eventType, function (e) {
+                cb(e);
+            })
+        }
+
+    } else {
+        /**
+         * 组件更新事件重新绑定，次数dom已渲染完成
+         */
+        browserEvent(document.getElementById(id)).on(eventType, function (e) {
+            cb(e);
+        })
+    }
+}
 
 /**
  * DOM节点生成函数
  */
 function openTag (tagName) {
     return function (...params) {
-        /**
-         * 可传入Component实例对象
-         */
-        if (isComponent(params[0])) {
-            return params[0].innerHTML;
-        } else {
-            let content = params[0] || '', 
-                props = params[1] || hash(),
-                propStr = '';
+        let id = randomStr();
+        let content = params[0] || '', 
+            props = params[1] || hash(),
+            propStr = '';
 
-            each(props, (prop, value)=>{
-                propStr += ` ${prop}="${value}"`;
-            });
-            return `<${tagName + propStr}>${content}</${tagName}>`
+        if (props['id'] != undefined) {
+            id = props['id'];
         }
+
+        if (tagName == 'a') {
+            props['href'] = props['href'] || 'javascript:void(0);';
+        }
+
+        each(props, (prop, value)=>{
+            if (prop.substring(0, 2) == 'on') {
+                _eventHelper(id, prop.substring(2), value);
+            } else {
+                propStr += ` ${prop}="${value}"`;
+            }
+        });
+
+        let idStr = ` id="${id}" `;
+        return `<${tagName + idStr + propStr}>${content}</${tagName}>`;
     }
 }
 
@@ -38,37 +74,21 @@ function closeTag (tagName) {
             propStr += ` ${prop}="${value}"`;
         });  
 
-        return `<${tagName + propStr}/>`;
+        return `<${tagName +  propStr}/>`;
     }
 }
 
+const h = hash();
+
 /**
  * composite
- * @param { Array } nodeFn 节点生成函数数组
+ * @param 节点生成函数数组
  */
-function combine (...nodeFn) {
-    let _html = '';
-    nodeFn.forEach(function(nodeStr){
-        /**
-         * 可传入Component实例对象
-         */
-        if (isComponent(nodeStr)) {
-            _html += nodeStr.innerHTML;
-        } else {
-            _html += nodeStr;
-        }
-    })
-
-    return _html;
+h.combine = function combine (...nodeFn) {
+    return nodeFn.map(function(node){
+        return Array.isArray(node) ? node.join('\n') : node;
+    }).join('\n');
 }
-
-/**
- * Component wrap method
- */
-function component (obj) {
-    return new obj; 
-}
-
 
 const OPEN_TAGS = [
     'header',
@@ -82,7 +102,8 @@ const OPEN_TAGS = [
     'form',
     'button',
     'label',
-    'a'
+    'a',
+    'span'
 ];
 
 const CLOSE_TAGS = [
@@ -90,7 +111,6 @@ const CLOSE_TAGS = [
     'input'
 ];
 
-const h = hash();
 
 OPEN_TAGS.forEach(function(tag){
     h[tag] = openTag(tag)
@@ -99,11 +119,6 @@ OPEN_TAGS.forEach(function(tag){
 CLOSE_TAGS.forEach(function(tag){
     h[tag] = closeTag(tag)
 })
-
-h['combine'] = combine;
-h['component'] = component;
-
-
 
 export default h
 
