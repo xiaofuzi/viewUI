@@ -49,10 +49,6 @@ export default class Component {
         /**
          * 更新当前组件
          */
-        //NodeEvent.off(window.currentComponentId);
         document.getElementById(this.$wrapId).innerHTML = this.innerHTML;
-        window.currentComponentId = this.$wrapId;
-        NodeEvent.emit(window.currentComponentId, this.$wrapId);
-        console.log('emit times')
     }
 }

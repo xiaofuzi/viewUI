@@ -11,10 +11,6 @@ import { hash, each,
 } from './utils.js';
 import NodeEvent from './event.js';
 
-/**
- * 临时解决方案
- */
-window.currentComponentId = null;
 
 /**
  * @private

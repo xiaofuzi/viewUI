@@ -189,11 +189,7 @@
 	            /**
 	             * 更新当前组件
 	             */
-	            //NodeEvent.off(window.currentComponentId);
 	            document.getElementById(this.$wrapId).innerHTML = this.innerHTML;
-	            window.currentComponentId = this.$wrapId;
-	            _event2.default.emit(window.currentComponentId, this.$wrapId);
-	            console.log('emit times');
 	        }
 	    }, {
 	        key: 'innerHTML',
@@ -234,17 +230,12 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	/**
-	 * 临时解决方案
+	 * @private
+	 * event helper method
 	 */
 	/**
 	 * @file node.js
 	 * 节点操作
-	 */
-	window.currentComponentId = null;
-	
-	/**
-	 * @private
-	 * event helper method
 	 */
 	var isFirstTimeRender = true;
 	
