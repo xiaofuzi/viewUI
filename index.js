@@ -18,7 +18,8 @@ function renderCard (index) {
     renderDOM(document.getElementById('app'), CardComponent);
     CardComponent.init();
 
-    if (index == 1) {
+    CardComponent.setState({title: 'card number ' + index + ': '})
+    if (index%2 == 1) {
         CardComponent.hide();
     }
 }

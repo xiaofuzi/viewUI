@@ -44,6 +44,17 @@ export default class BaseCard extends Component {
         })
     }
 
+    /**
+     * alias api
+     */
+    collapse () {
+        this.show();
+    }
+
+    expand () {
+        this.hide();
+    }
+
     toggle = () => {
         console.log('cardId: ', this.cardId);
         if (this.state.isShow) {

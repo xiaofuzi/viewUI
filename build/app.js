@@ -72,7 +72,8 @@
 	    (0, _core.renderDOM)(document.getElementById('app'), CardComponent);
 	    CardComponent.init();
 	
-	    if (index == 1) {
+	    CardComponent.setState({ title: 'card number ' + index + ': ' });
+	    if (index % 2 == 1) {
 	        CardComponent.hide();
 	    }
 	}
@@ -656,6 +657,21 @@
 	
 	
 	    _createClass(BaseCard, [{
+	        key: 'collapse',
+	
+	
+	        /**
+	         * alias api
+	         */
+	        value: function collapse() {
+	            this.show();
+	        }
+	    }, {
+	        key: 'expand',
+	        value: function expand() {
+	            this.hide();
+	        }
+	    }, {
 	        key: 'renderHeader',
 	        value: function renderHeader() {
 	            return div(combine(div(h3(this.state.title), { class: 'card-title' }), div(a(this.state.iconText), {
