@@ -67,9 +67,19 @@
 	var component = _node2.default.component;
 	
 	
-	var CardComponent = new _Card2.default();
-	(0, _core.renderDOM)(document.getElementById('app'), CardComponent);
-	CardComponent.init();
+	function renderCard(index) {
+	    var CardComponent = new _Card2.default();
+	    (0, _core.renderDOM)(document.getElementById('app'), CardComponent);
+	    CardComponent.init();
+	
+	    if (index == 1) {
+	        CardComponent.hide();
+	    }
+	}
+	
+	for (var i = 0; i < 10; i++) {
+	    renderCard(i);
+	}
 
 /***/ },
 /* 1 */
@@ -104,7 +114,7 @@
 	
 	    var _id = (0, _utils.randomStr)();
 	    component.$wrapId = _id;
-	    el.innerHTML = div(component.innerHTML, { id: _id, name: 'component' });
+	    el.innerHTML += div(component.innerHTML, { id: _id, name: 'component' });
 	}
 	
 	exports.Component = _component2.default;
@@ -210,10 +220,6 @@
 	    value: true
 	});
 	
-	var _dom = __webpack_require__(4);
-	
-	var _dom2 = _interopRequireDefault(_dom);
-	
 	var _browserEvent = __webpack_require__(5);
 	
 	var _browserEvent2 = _interopRequireDefault(_browserEvent);
@@ -226,11 +232,11 @@
 	 * @private
 	 * event helper method
 	 */
-	var isFirstTimeRender = true; /**
-	                               * @file node.js
-	                               * 节点操作
-	                               */
-	
+	/**
+	 * @file node.js
+	 * 节点操作
+	 */
+	var isFirstTimeRender = true;
 	
 	function _eventHelper(id, eventType, cb) {
 	    // if (isFirstTimeRender) {
@@ -251,18 +257,15 @@
 	    //             }) 
 	    //     })
 	    // }
-	
 	    (0, _browserEvent2.default)(document.body).once(eventType, function (e) {
 	        /**
 	         * 重新渲染id会发生变化，忽略之前的id值
-	         * todo: 待优化
 	         */
-	        if (document.getElementById(id)) {
-	            var currentEl = (0, _browserEvent2.default)(document.getElementById(id));
-	            currentEl.once(eventType, function (e) {
+	        var currentEl = document.getElementById(id);
+	        if (currentEl) {
+	            if (currentEl.contains(e.target)) {
 	                cb(e);
-	            });
-	            currentEl.trigger(eventType, false);
+	            }
 	        }
 	    });
 	}
@@ -342,151 +345,7 @@
 	exports.default = h;
 
 /***/ },
-/* 4 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	var dom = {
-	    /*
-	     * dom manipulation
-	     */
-	    val: function val(newVal) {
-	        return newVal !== undefined ? this.element.value = newVal : this.element.value;
-	    },
-	    clone: function clone() {
-	        var el = this.element;
-	        return el.cloneNode(true);
-	    },
-	    append: function append(html) {
-	        this.element.innerHTML = this.element.innerHTML + html;
-	        return this;
-	    },
-	    prepend: function prepend(html) {
-	        this.element.innerHTML = html + this.element.innerHTML;
-	        return this;
-	    },
-	    after: function after(html) {
-	        this.element.insertAdjacentHTML('afterend', html);
-	        return this;
-	    },
-	    before: function before(html) {
-	        this.element.insertAdjacentHTML('beforebegin', html);
-	        return this;
-	    },
-	    remove: function remove() {
-	        this.element.parentNode.removeChild(this.element);
-	        return this;
-	    },
-	    /*search*/
-	    first: function first() {
-	        return this;
-	    },
-	    last: function last() {
-	        var el = this.element;
-	        var length = this.elements.length;
-	        el = this.elements[length];
-	        return this;
-	    },
-	    prev: function prev() {
-	        return this.element.previousElementSibling;
-	    },
-	    next: function next() {
-	        return this.element.nextElementSibling;
-	    },
-	    siblings: function siblings() {
-	        var el = this.element;
-	        [].filter.call(el.parentNode.children, function (child) {
-	            return child !== el;
-	        });
-	    },
-	    children: function children() {
-	        var el = this.element;
-	        return el.children;
-	    },
-	    /*
-	     * class processor
-	     */
-	    addClass: function addClass(className) {
-	        var el = this.element;
-	        el.className = ' ' + el.className + ' ';
-	        if (el.className.indexOf(' ' + className + ' ') !== -1) {
-	            return false;
-	        } else {
-	            el.className += className;
-	        }
-	        return this;
-	    },
-	    removeClass: function removeClass(className) {
-	        var el = this.element;
-	        el.className = el.className.replace(className, '');
-	
-	        return this;
-	    },
-	    toggleClass: function toggleClass(className) {
-	        var el = this.element;
-	        el.className = ' ' + el.className + ' ';
-	        if (el.className.indexOf(' ' + className + ' ') !== -1) {
-	            this.removeClass(className);
-	        } else {
-	            el.className += className;
-	        }
-	        return this;
-	    },
-	    hasClass: function hasClass(className) {
-	        var el = this.element;
-	        el.className = ' ' + el.className + ' ';
-	        if (el.className.indexOf(' ' + className + ' ') !== -1) {
-	            return true;
-	        } else {
-	            return false;
-	        }
-	    },
-	    /*
-	     * attribute
-	     */
-	    attr: function attr(prop, value) {
-	        if (value) {
-	            this.element.setAttribute(prop, value);
-	        } else if (prop) {
-	            return this.element.getAttribute(prop);
-	        }
-	        return this;
-	    },
-	    removeAttr: function removeAttr(prop) {
-	        this.element.removeAttribute(prop);
-	        return this;
-	    },
-	    text: function text(_text) {
-	        if (_text === undefined) {
-	            return this.element.innerText;
-	        }
-	        this.element.innerText = _text;
-	
-	        return this;
-	    },
-	    html: function html(_html) {
-	        if (_html === undefined) {
-	            return this.element.innerHTML;
-	        }
-	        this.element.innerHTML = _html;
-	
-	        return this;
-	    },
-	    replaceWith: function replaceWith(html) {
-	        var el = this.element;
-	        if (html) {
-	            el.outerHTML = html;
-	        }
-	    }
-	};
-	
-	exports.default = dom;
-
-/***/ },
+/* 4 */,
 /* 5 */
 /***/ function(module, exports) {
 
@@ -748,6 +607,9 @@
 	var h3 = _node2.default.h3;
 	var combine = _node2.default.combine;
 	
+	
+	var cardId = 0;
+	
 	var BaseCard = function (_Component) {
 	    _inherits(BaseCard, _Component);
 	
@@ -771,7 +633,7 @@
 	        };
 	
 	        _this.toggle = function () {
-	            console.log('state', _this.state);
+	            console.log('cardId: ', _this.cardId);
 	            if (_this.state.isShow) {
 	                _this.hide();
 	            } else {
@@ -784,6 +646,7 @@
 	            iconText: 'hide',
 	            isShow: true
 	        };
+	        _this.cardId = ++cardId;
 	        return _this;
 	    }
 	
@@ -859,7 +722,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".widget-card-component {\n  border: 1px solid #ddd;\n  border-radius: 5px;\n  width: 350px;\n}\n.widget-card-component .card-header {\n  position: relative;\n  border-bottom: 1px solid #ddd;\n}\n.widget-card-component .card-header .card-title {\n  height: 40px;\n  line-height: 40px;\n  padding: 0 15px;\n}\n.widget-card-component .card-header .card-title h3 {\n  display: inline-block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.widget-card-component .card-header .card-extral-icon {\n  position: absolute;\n  top: 10px;\n  right: 20px;\n}\n.widget-card-component .card-header .card-extral-icon a {\n  color: #2db7f5;\n}\n.widget-card-component .card-header .card-extral-icon a:hover {\n  color: #57c5f7;\n}\n.widget-card-component .card-body {\n  transition: height 2s;\n  overflow: hidden;\n}\n.widget-card-component .card-body li {\n  list-style: none;\n  padding: 5px 15px;\n}\n.widget-card-component .show {\n  height: auto;\n}\n.widget-card-component .hide {\n  height: 0;\n}\n", ""]);
+	exports.push([module.id, ".widget-card-component {\n  border: 1px solid #ddd;\n  border-radius: 5px;\n  width: 350px;\n  margin-bottom: 20px;\n}\n.widget-card-component .card-header {\n  position: relative;\n  border-bottom: 1px solid #ddd;\n}\n.widget-card-component .card-header .card-title {\n  height: 40px;\n  line-height: 40px;\n  padding: 0 15px;\n}\n.widget-card-component .card-header .card-title h3 {\n  display: inline-block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.widget-card-component .card-header .card-extral-icon {\n  position: absolute;\n  top: 10px;\n  right: 20px;\n}\n.widget-card-component .card-header .card-extral-icon a {\n  color: #2db7f5;\n}\n.widget-card-component .card-header .card-extral-icon a:hover {\n  color: #57c5f7;\n}\n.widget-card-component .card-body {\n  transition: height 2s;\n  overflow: hidden;\n}\n.widget-card-component .card-body li {\n  list-style: none;\n  padding: 5px 15px;\n}\n.widget-card-component .show {\n  height: auto;\n}\n.widget-card-component .hide {\n  height: 0;\n}\n", ""]);
 	
 	// exports
 

@@ -13,6 +13,16 @@ const {
 
 import './index.less';
 
-let CardComponent = new Card();
-renderDOM(document.getElementById('app'), CardComponent);
-CardComponent.init();
+function renderCard (index) {
+    let CardComponent = new Card();
+    renderDOM(document.getElementById('app'), CardComponent);
+    CardComponent.init();
+
+    if (index == 1) {
+        CardComponent.hide();
+    }
+}
+
+for (let i = 0; i < 10; i++) {
+    renderCard(i);
+}

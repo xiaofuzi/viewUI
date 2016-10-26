@@ -14,6 +14,8 @@ let {
 
 import './BaseCard.less';
 
+let cardId = 0;
+
 export default class BaseCard extends Component {
     constructor () {
         super();
@@ -22,6 +24,7 @@ export default class BaseCard extends Component {
             iconText: 'hide',
             isShow: true
         }
+        this.cardId = ++cardId;
     }
 
     /**
@@ -42,7 +45,7 @@ export default class BaseCard extends Component {
     }
 
     toggle = () => {
-        console.log('state', this.state)
+        console.log('cardId: ', this.cardId);
         if (this.state.isShow) {
             this.hide();
         } else {

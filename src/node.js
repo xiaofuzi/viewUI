@@ -2,7 +2,6 @@
  * @file node.js
  * 节点操作
  */
-import dom from './dom/dom.js';
 import browserEvent from './browserEvent.js';
 import { hash, each,
     isObject,
@@ -36,18 +35,15 @@ function _eventHelper (id, eventType, cb) {
     //             }) 
     //     })
     // }
-
     browserEvent(document.body).once(eventType, function (e) {
         /**
          * 重新渲染id会发生变化，忽略之前的id值
-         * todo: 待优化
          */
-        if (document.getElementById(id)) {
-            let currentEl = browserEvent(document.getElementById(id));
-            currentEl.once(eventType, function(e){
+        let currentEl = document.getElementById(id);
+        if (currentEl) {
+            if (currentEl.contains(e.target)) {
                 cb(e);
-            });
-            currentEl.trigger(eventType, false);
+            }
         }
     })
 }
