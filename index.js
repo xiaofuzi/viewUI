@@ -3,7 +3,7 @@ import {
     renderDOM
 } from './src/core.js';
 import node from './src/node.js';
-import Card from './Card.js';
+import Card from './src/components/Card/Card.js';
 
 const {
     div, h1, h2,
@@ -13,4 +13,6 @@ const {
 
 import './index.less';
 
-renderDOM(document.getElementById('app'), new Card());
+let CardComponent = new Card();
+renderDOM(document.getElementById('app'), CardComponent);
+CardComponent.init();

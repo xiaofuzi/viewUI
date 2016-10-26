@@ -9,7 +9,6 @@ import { hash, each,
     isComponent,
     randomStr
 } from './utils.js';
-import NodeEvent from './event.js';
 
 
 /**

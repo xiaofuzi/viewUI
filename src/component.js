@@ -1,5 +1,4 @@
 import node from './node.js';
-import NodeEvent from './event.js';
 import { 
     hash,
     isComponent, 

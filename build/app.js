@@ -52,7 +52,7 @@
 	
 	var _node2 = _interopRequireDefault(_node);
 	
-	var _Card = __webpack_require__(8);
+	var _Card = __webpack_require__(16);
 	
 	var _Card2 = _interopRequireDefault(_Card);
 	
@@ -67,7 +67,9 @@
 	var component = _node2.default.component;
 	
 	
-	(0, _core.renderDOM)(document.getElementById('app'), new _Card2.default());
+	var CardComponent = new _Card2.default();
+	(0, _core.renderDOM)(document.getElementById('app'), CardComponent);
+	CardComponent.init();
 
 /***/ },
 /* 1 */
@@ -102,7 +104,6 @@
 	
 	    var _id = (0, _utils.randomStr)();
 	    component.$wrapId = _id;
-	    currentComponentId = _id;
 	    el.innerHTML = div(component.innerHTML, { id: _id, name: 'component' });
 	}
 	
@@ -126,10 +127,6 @@
 	var _node = __webpack_require__(3);
 	
 	var _node2 = _interopRequireDefault(_node);
-	
-	var _event = __webpack_require__(7);
-	
-	var _event2 = _interopRequireDefault(_event);
 	
 	var _utils = __webpack_require__(6);
 	
@@ -223,21 +220,17 @@
 	
 	var _utils = __webpack_require__(6);
 	
-	var _event = __webpack_require__(7);
-	
-	var _event2 = _interopRequireDefault(_event);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	/**
 	 * @private
 	 * event helper method
 	 */
-	/**
-	 * @file node.js
-	 * 节点操作
-	 */
-	var isFirstTimeRender = true;
+	var isFirstTimeRender = true; /**
+	                               * @file node.js
+	                               * 节点操作
+	                               */
+	
 	
 	function _eventHelper(id, eventType, cb) {
 	    // if (isFirstTimeRender) {
@@ -720,180 +713,8 @@
 	}
 
 /***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	var slice = [].slice;
-	
-	/*
-	* event control class
-	* @param {context}
-	*/
-	
-	function Event(ctx) {
-	    this._ctx = ctx || this;
-	    this._events = {};
-	}
-	
-	var EventProto = Event.prototype;
-	
-	/*
-	* bind a event
-	* @param {event} eventType
-	* @param {fn} function
-	*/
-	EventProto.on = function (event, fn) {
-	    this._events[event] = this._events[event] || [];
-	    this._events[event].push(fn);
-	
-	    return this;
-	};
-	
-	/*
-	* bind an event but only called one time
-	* @param {event} eventType
-	* @param {fn} function
-	*/
-	EventProto.once = function (event, fn) {
-	    var self = this;
-	
-	    //when fn is called, remove all event listener
-	    function fnWrap() {
-	        self.off(event, fnWrap);
-	        fn.apply(this, arguments);
-	    }
-	
-	    //to specifiy remove method
-	    fnWrap.fn = fn;
-	    this.on(event, fnWrap);
-	    return this;
-	};
-	
-	/*
-	* unbind an event  
-	* @param {event} eventType
-	* @param {fn} function
-	*/
-	
-	EventProto.off = function (event, fn) {
-	    //remove all events
-	    if (!arguments) {
-	        this._events = {};
-	        return this;
-	    }
-	
-	    //there are not fn binded
-	    var events = this._events[event];
-	    if (!events) return this;
-	
-	    //remove an type events
-	    if (arguments.length === 1 && typeof event === 'string') {
-	        delete this._events[event];
-	        return this;
-	    }
-	
-	    //remove fn
-	    var handler;
-	    for (var i = 0; i < events.length; i++) {
-	        handler = events[i];
-	        if (handler === fn || handler.fn === fn) {
-	            events.splice(i, 1);
-	            break;
-	        }
-	    }
-	    return this;
-	};
-	
-	/*
-	* emit
-	* @param {event}
-	* @param {fn param}
-	*/
-	EventProto.emit = function (event) {
-	    var _this = this;
-	
-	    var events = this._events[event],
-	        args;
-	    if (events) {
-	        events = events.slice(0);
-	        args = slice.call(arguments, 1);
-	        events.forEach(function (event) {
-	            event.apply(_this._ctx, args);
-	        });
-	    }
-	    return this;
-	};
-	
-	exports.default = new Event();
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _BaseCard2 = __webpack_require__(9);
-	
-	var _BaseCard3 = _interopRequireDefault(_BaseCard2);
-	
-	var _node = __webpack_require__(3);
-	
-	var _node2 = _interopRequireDefault(_node);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var span = _node2.default.span;
-	var a = _node2.default.a;
-	var div = _node2.default.div;
-	var h3 = _node2.default.h3;
-	var li = _node2.default.li;
-	var ul = _node2.default.ul;
-	var combine = _node2.default.combine;
-	
-	var Card = function (_BaseCard) {
-	    _inherits(Card, _BaseCard);
-	
-	    function Card() {
-	        _classCallCheck(this, Card);
-	
-	        var _this = _possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).call(this));
-	
-	        _this.listData = ['css', 'javascript', 'c++', 'scheme'];
-	        return _this;
-	    }
-	
-	    _createClass(Card, [{
-	        key: 'renderBody',
-	        value: function renderBody() {
-	            return ul(combine(this.listData.map(function (item) {
-	                return li(item);
-	            })));
-	        }
-	    }]);
-	
-	    return Card;
-	}(_BaseCard3.default);
-	
-	exports.default = Card;
-
-/***/ },
+/* 7 */,
+/* 8 */,
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -1387,6 +1208,142 @@
 	
 	// module
 	exports.push([module.id, "h1,\nh2,\nh3,\nh4,\nh5,\nhtml,\nbody,\ndiv,\nspan,\nimg,\nli,\nul {\n  margin: 0;\n  padding: 0;\n}\ninput,\nselect,\nform,\ntextarea {\n  outline: none;\n}\na {\n  text-decoration: none;\n}\n", ""]);
+	
+	// exports
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _BaseCard2 = __webpack_require__(9);
+	
+	var _BaseCard3 = _interopRequireDefault(_BaseCard2);
+	
+	var _node = __webpack_require__(3);
+	
+	var _node2 = _interopRequireDefault(_node);
+	
+	__webpack_require__(17);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var span = _node2.default.span;
+	var a = _node2.default.a;
+	var div = _node2.default.div;
+	var h3 = _node2.default.h3;
+	var li = _node2.default.li;
+	var ul = _node2.default.ul;
+	var combine = _node2.default.combine;
+	
+	var Card = function (_BaseCard) {
+	    _inherits(Card, _BaseCard);
+	
+	    function Card() {
+	        _classCallCheck(this, Card);
+	
+	        var _this = _possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).call(this));
+	
+	        _this.listData = ['css', 'javascript', 'c++', 'scheme'];
+	        return _this;
+	    }
+	
+	    //实例化后调用
+	
+	
+	    _createClass(Card, [{
+	        key: 'init',
+	        value: function init() {
+	            this.fetch();
+	        }
+	    }, {
+	        key: 'renderBody',
+	        value: function renderBody() {
+	            if (this.state.isLoading) {
+	                return div('加载中...', { class: 'card-loading' });
+	            } else {
+	                return ul(combine(this.listData.map(function (item) {
+	                    return li(item);
+	                })));
+	            }
+	        }
+	
+	        /**
+	         * 异步请求模拟
+	         */
+	
+	    }, {
+	        key: 'fetch',
+	        value: function fetch() {
+	            var _this2 = this;
+	
+	            this.setState({
+	                isLoading: true
+	            });
+	
+	            setTimeout(function () {
+	                _this2.setState({
+	                    isLoading: false
+	                });
+	            }, 2000);
+	        }
+	    }]);
+	
+	    return Card;
+	}(_BaseCard3.default);
+	
+	exports.default = Card;
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(18);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(13)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/less-loader/index.js!./Card.less", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/less-loader/index.js!./Card.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(12)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, ".widget-card-component .card-loading {\n  font-size: 12px;\n  font-color: #ddd;\n  text-align: center;\n  padding: 20px 0;\n}\n", ""]);
 	
 	// exports
 
