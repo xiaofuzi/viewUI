@@ -9,31 +9,52 @@ import { hash, each,
     isComponent,
     randomStr
 } from './utils.js';
+import NodeEvent from './event.js';
+
+/**
+ * 临时解决方案
+ */
+window.currentComponentId = null;
 
 /**
  * @private
  * event helper method
  */
-function _eventHelper (id, eventType, cb) {
-    console.log(document.getElementById(id))
-    if (!document.getElementById(id)) {
-        /**
-         * 首次渲染事件绑定
-         */
-        document.body.onload = function (e) {
-            browserEvent(document.getElementById(id)).on(eventType, function (e) {
-                cb(e);
-            })
-        }
+let isFirstTimeRender = true;
 
-    } else {
+function _eventHelper (id, eventType, cb) {
+    // if (isFirstTimeRender) {
+    //     /**
+    //      * 首次渲染事件绑定
+    //      */
+    //     document.body.onload = function (e) {
+    //         browserEvent(document.getElementById(id)).on(eventType, function (e) {
+    //             cb(e);
+    //         })
+    //         isFirstTimeRender = false;
+    //     }
+
+    // } else {
+    //     NodeEvent.once(window.currentComponentId, function(id){
+    //         browserEvent(document.getElementById(id)).on(eventType, function (e) {
+    //                 cb(e);
+    //             }) 
+    //     })
+    // }
+
+    browserEvent(document.body).once(eventType, function (e) {
         /**
-         * 组件更新事件重新绑定，次数dom已渲染完成
+         * 重新渲染id会发生变化，忽略之前的id值
+         * todo: 待优化
          */
-        browserEvent(document.getElementById(id)).on(eventType, function (e) {
-            cb(e);
-        })
-    }
+        if (document.getElementById(id)) {
+            let currentEl = browserEvent(document.getElementById(id));
+            currentEl.once(eventType, function(e){
+                cb(e);
+            });
+            currentEl.trigger(eventType, false);
+        }
+    })
 }
 
 /**

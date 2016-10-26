@@ -5,7 +5,7 @@ var slice = [].slice;
 * @param {context}
 */
 
-export default function Event(ctx){
+function Event(ctx){
     this._ctx = ctx || this;
     this._events = {};
 }
@@ -91,9 +91,11 @@ EventProto.emit = function(event){
     if(events){
         events = events.slice(0);
         args = slice.call(arguments, 1);
-        events.forEach(function(event){
+        events.forEach((event)=>{
             event.apply(this._ctx, args);
         })
     }
     return this;
 }
+
+export default new Event();

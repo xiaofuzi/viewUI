@@ -1,5 +1,5 @@
 import node from './node.js';
-import event from './event.js';
+import NodeEvent from './event.js';
 import { 
     hash,
     isComponent, 
@@ -18,10 +18,6 @@ export default class Component {
 
     get innerHTML () {
         return this.render();
-    }
-
-    renderDOM (containerEl) {
-        
     }
 
     render () {
@@ -53,6 +49,10 @@ export default class Component {
         /**
          * 更新当前组件
          */
+        //NodeEvent.off(window.currentComponentId);
         document.getElementById(this.$wrapId).innerHTML = this.innerHTML;
+        window.currentComponentId = this.$wrapId;
+        NodeEvent.emit(window.currentComponentId, this.$wrapId);
+        console.log('emit times')
     }
 }

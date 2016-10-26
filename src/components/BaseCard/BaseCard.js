@@ -42,7 +42,7 @@ export default class BaseCard extends Component {
     }
 
     toggle = () => {
-        console.log(this.state)
+        console.log('state', this.state)
         if (this.state.isShow) {
             this.hide();
         } else {

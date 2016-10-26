@@ -13,7 +13,7 @@ function renderDOM (el, component=hash()) {
     
     let _id = randomStr();
     component.$wrapId = _id;
-    
+    currentComponentId = _id;
     el.innerHTML = div(component.innerHTML, {id: _id, name: 'component'});
 }
 

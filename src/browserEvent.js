@@ -91,10 +91,10 @@ export default function($el) {
             this.eventHandler.remove(event, this.element);
         },
         //浏览器事件，默认冒泡
-        trigger (type) {
+        trigger (type, bool=true) {
             var el = this.element;
             var event = document.createEvent('HTMLEvents');
-            event.initEvent(type, true, true);
+            event.initEvent(type, bool, true);
             el.dispatchEvent(event);
         }
     }

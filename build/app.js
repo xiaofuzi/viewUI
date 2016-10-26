@@ -52,7 +52,7 @@
 	
 	var _node2 = _interopRequireDefault(_node);
 	
-	var _Card = __webpack_require__(16);
+	var _Card = __webpack_require__(8);
 	
 	var _Card2 = _interopRequireDefault(_Card);
 	
@@ -102,7 +102,7 @@
 	
 	    var _id = (0, _utils.randomStr)();
 	    component.$wrapId = _id;
-	
+	    currentComponentId = _id;
 	    el.innerHTML = div(component.innerHTML, { id: _id, name: 'component' });
 	}
 	
@@ -151,9 +151,6 @@
 	    }
 	
 	    _createClass(Component, [{
-	        key: 'renderDOM',
-	        value: function renderDOM(containerEl) {}
-	    }, {
 	        key: 'render',
 	        value: function render() {
 	            return div();
@@ -192,7 +189,11 @@
 	            /**
 	             * 更新当前组件
 	             */
+	            //NodeEvent.off(window.currentComponentId);
 	            document.getElementById(this.$wrapId).innerHTML = this.innerHTML;
+	            window.currentComponentId = this.$wrapId;
+	            _event2.default.emit(window.currentComponentId, this.$wrapId);
+	            console.log('emit times');
 	        }
 	    }, {
 	        key: 'innerHTML',
@@ -226,39 +227,64 @@
 	
 	var _utils = __webpack_require__(6);
 	
+	var _event = __webpack_require__(7);
+	
+	var _event2 = _interopRequireDefault(_event);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/**
+	 * 临时解决方案
+	 */
+	/**
+	 * @file node.js
+	 * 节点操作
+	 */
+	window.currentComponentId = null;
 	
 	/**
 	 * @private
 	 * event helper method
 	 */
+	var isFirstTimeRender = true;
+	
 	function _eventHelper(id, eventType, cb) {
-	    console.log(document.getElementById(id));
-	    if (!document.getElementById(id)) {
+	    // if (isFirstTimeRender) {
+	    //     /**
+	    //      * 首次渲染事件绑定
+	    //      */
+	    //     document.body.onload = function (e) {
+	    //         browserEvent(document.getElementById(id)).on(eventType, function (e) {
+	    //             cb(e);
+	    //         })
+	    //         isFirstTimeRender = false;
+	    //     }
+	
+	    // } else {
+	    //     NodeEvent.once(window.currentComponentId, function(id){
+	    //         browserEvent(document.getElementById(id)).on(eventType, function (e) {
+	    //                 cb(e);
+	    //             }) 
+	    //     })
+	    // }
+	
+	    (0, _browserEvent2.default)(document.body).once(eventType, function (e) {
 	        /**
-	         * 首次渲染事件绑定
+	         * 重新渲染id会发生变化，忽略之前的id值
+	         * todo: 待优化
 	         */
-	        document.body.onload = function (e) {
-	            (0, _browserEvent2.default)(document.getElementById(id)).on(eventType, function (e) {
+	        if (document.getElementById(id)) {
+	            var currentEl = (0, _browserEvent2.default)(document.getElementById(id));
+	            currentEl.once(eventType, function (e) {
 	                cb(e);
 	            });
-	        };
-	    } else {
-	        /**
-	         * 组件更新事件重新绑定，次数dom已渲染完成
-	         */
-	        (0, _browserEvent2.default)(document.getElementById(id)).on(eventType, function (e) {
-	            cb(e);
-	        });
-	    }
+	            currentEl.trigger(eventType, false);
+	        }
+	    });
 	}
 	
 	/**
 	 * DOM节点生成函数
-	 */
-	/**
-	 * @file node.js
-	 * 节点操作
 	 */
 	function openTag(tagName) {
 	    return function () {
@@ -583,9 +609,11 @@
 	
 	        //浏览器事件，默认冒泡
 	        trigger: function trigger(type) {
+	            var bool = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+	
 	            var el = this.element;
 	            var event = document.createEvent('HTMLEvents');
-	            event.initEvent(type, true, true);
+	            event.initEvent(type, bool, true);
 	            el.dispatchEvent(event);
 	        }
 	    };
@@ -709,7 +737,6 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.default = Event;
 	var slice = [].slice;
 	
 	/*
@@ -797,20 +824,85 @@
 	* @param {fn param}
 	*/
 	EventProto.emit = function (event) {
+	    var _this = this;
+	
 	    var events = this._events[event],
 	        args;
 	    if (events) {
 	        events = events.slice(0);
 	        args = slice.call(arguments, 1);
 	        events.forEach(function (event) {
-	            event.apply(this._ctx, args);
+	            event.apply(_this._ctx, args);
 	        });
 	    }
 	    return this;
 	};
+	
+	exports.default = new Event();
 
 /***/ },
-/* 8 */,
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _BaseCard2 = __webpack_require__(9);
+	
+	var _BaseCard3 = _interopRequireDefault(_BaseCard2);
+	
+	var _node = __webpack_require__(3);
+	
+	var _node2 = _interopRequireDefault(_node);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var span = _node2.default.span;
+	var a = _node2.default.a;
+	var div = _node2.default.div;
+	var h3 = _node2.default.h3;
+	var li = _node2.default.li;
+	var ul = _node2.default.ul;
+	var combine = _node2.default.combine;
+	
+	var Card = function (_BaseCard) {
+	    _inherits(Card, _BaseCard);
+	
+	    function Card() {
+	        _classCallCheck(this, Card);
+	
+	        var _this = _possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).call(this));
+	
+	        _this.listData = ['css', 'javascript', 'c++', 'scheme'];
+	        return _this;
+	    }
+	
+	    _createClass(Card, [{
+	        key: 'renderBody',
+	        value: function renderBody() {
+	            return ul(combine(this.listData.map(function (item) {
+	                return li(item);
+	            })));
+	        }
+	    }]);
+	
+	    return Card;
+	}(_BaseCard3.default);
+	
+	exports.default = Card;
+
+/***/ },
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -867,7 +959,7 @@
 	        };
 	
 	        _this.toggle = function () {
-	            console.log(_this.state);
+	            console.log('state', _this.state);
 	            if (_this.state.isShow) {
 	                _this.hide();
 	            } else {
@@ -1307,68 +1399,6 @@
 	
 	// exports
 
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _BaseCard2 = __webpack_require__(9);
-	
-	var _BaseCard3 = _interopRequireDefault(_BaseCard2);
-	
-	var _node = __webpack_require__(3);
-	
-	var _node2 = _interopRequireDefault(_node);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var span = _node2.default.span;
-	var a = _node2.default.a;
-	var div = _node2.default.div;
-	var h3 = _node2.default.h3;
-	var li = _node2.default.li;
-	var ul = _node2.default.ul;
-	var combine = _node2.default.combine;
-	
-	var Card = function (_BaseCard) {
-	    _inherits(Card, _BaseCard);
-	
-	    function Card() {
-	        _classCallCheck(this, Card);
-	
-	        var _this = _possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).call(this));
-	
-	        _this.listData = ['css', 'javascript', 'c++', 'scheme'];
-	        return _this;
-	    }
-	
-	    _createClass(Card, [{
-	        key: 'renderBody',
-	        value: function renderBody() {
-	            return ul(combine(this.listData.map(function (item) {
-	                return li(item);
-	            })));
-	        }
-	    }]);
-	
-	    return Card;
-	}(_BaseCard3.default);
-	
-	exports.default = Card;
 
 /***/ }
 /******/ ]);
